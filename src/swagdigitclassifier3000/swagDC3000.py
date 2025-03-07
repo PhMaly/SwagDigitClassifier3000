@@ -32,9 +32,9 @@ def predict():
     img = ImageOps.invert(img)
     img.save("saved_images/invert.png")
     # J'obtiens de meilleur pédictions sans bbox et crop l'image
-    # imgbbox = img.getbbox()
-    # img = img.crop(imgbbox)
-    # img.save("saved_images/cropped.png")
+    imgbbox = img.getbbox()
+    img = img.crop(imgbbox)
+    img.save("saved_images/cropped.png")
     img = img.resize((8,8))
     img.save("saved_images/resize.png")
     img_array = numpy.array(img).reshape(1, -1)
