@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SwagDigitClassifier3000</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+    }
+
+    #content {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+      display: inline-block;
+    }
+
+    canvas {
+      border: 1px solid black;
+      background: white;
+    }
+
+    button {
+      margin: 5px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="content">
+    <h1>SwagDigitClassifier3000</h1>
+    <p>Please draw a digit and press the send button.</p>
+    <canvas id="myDigit" width="300" height="300"></canvas>
+    <p>
+      <button id="clear">Clear</button>
+      <button id="send">Send</button>
+    </p>
+    <p id="results"></p>
+  </div>
+</body>
+
+<script>
+  window.onload = (event) => {
+    // When true, moving the mouse draws on the canvas
+    let isDrawing = false;
+    let x = 0;
+    let y = 0;
+    const canvas = document.getElementById("myDigit");
+    const button = document.getElementById("send");
+    const clear = document.getElementById("clear");
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = "white";
+    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+    // Add the event listeners for mousedown, mousemove, and mouseup
+    canvas.addEventListener("mousedown", (e) => {
+      x = e.offsetX;
+      y = e.offsetY;
+      isDrawing = true;
+    });
+
+    canvas.addEventListener("mousemove", (e) => {
+      if (isDrawing) {
+        drawLine(ctx, x, y, e.offsetX, e.offsetY);
+        x = e.offsetX;
+        y = e.offsetY;
+      }
+    });
+
+    canvas.addEventListener("mouseup", (e) => {
+      if (isDrawing) {
+        drawLine(ctx, x, y, e.offsetX, e.offsetY);
+        x = 0;
+        y = 0;
+        isDrawing = false;
+      }
+    });
+
+    function drawLine(ctx, x1, y1, x2, y2) {
+      ctx.beginPath();
+      ctx.strokeStyle = "black";
+      ctx.lineWidth = 10;
+      ctx.lineJoin = "round";
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2, y2);
+      ctx.closePath();
+      ctx.stroke();
+    }
+    const postArea = function () {
+      fetch("http://localhost:5000/predict", {
+        method: "POST",
+        body: JSON.stringify({
+          image: canvas.toDataURL(),
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+        .then((response) => response.json()) // Convertit la réponse en JSON
+        .then((data) => {
+          document.getElementById("results").innerText =
+            "Prediction: " + data.result;
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          document.getElementById("results").innerText = "Error in prediction!";
+        });
+    };
+
+    button.addEventListener("click", postArea);
+    function clearArea() {
+      ctx.fillStyle = "white";
+      ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    }
+    clear.addEventListener("click", clearArea);
+  };
+</script>
