@@ -1,4 +1,4 @@
 requirements.txt
 .ipynb_checkpoints
 __pycache__
-saved_images/*
+src/swagdigitclassifier3000/saved_images/*
